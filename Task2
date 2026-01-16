@@ -1,0 +1,54 @@
+/*Import Required Libraries*/
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+/*Load Dataset*/
+df = pd.read_csv("house_prices.csv")  # change file name accordingly
+/*Check data:*/
+df.head()
+df.info()
+
+/*Identify Missing Values*/
+/*Find total missing values column-wise*/
+missing_values = df.isnull().sum()
+missing_values
+
+/*Calculate percentage:*/
+missing_percent = (df.isnull().sum() / len(df)) * 100
+missing_percent
+
+/*Visualize Missing Data*/
+missing_values.plot(kind='bar', figsize=(10,5))
+plt.title("Missing Values Per Column")
+plt.ylabel("Count")
+plt.show()
+
+/*Handle Missing Values
+✅ Numerical Columns → Mean / Median*/
+num_cols = df.select_dtypes(include=np.number).columns
+
+for col in num_cols:
+    df[col].fillna(df[col].median(), inplace=True)
+
+/*✅ Categorical Columns → Mode*/
+cat_cols = df.select_dtypes(include='object').columns
+
+for col in cat_cols:
+    df[col].fillna(df[col].mode()[0], inplace=True)
+
+/*Remove Columns with High Missing Values*/
+threshold = 0.4
+df = df.loc[:, df.isnull().mean() < threshold]
+
+/*Validate Dataset After Cleaning*/
+df.isnull().sum()
+df.info()
+
+/*Compare Before vs After*/
+print("Before Cleaning Shape:", df.shape)
+print("After Cleaning Shape:", df.shape)
+
+/*Save Cleaned Dataset*/
+df.to_csv("cleaned_dataset.csv", index=False)
+
